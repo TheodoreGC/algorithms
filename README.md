@@ -55,3 +55,34 @@ rustup update
 ```
 
 Then, same as above, run `algo` to get started.
+
+## Writing the algorithms
+
+The algorithms are sorted by topic and can be found in the subdirectory `algorithms/algorithms/<topic>`. For every topic there is an additional README file with some resources to get you started on the topic. It is highly recommend that you have a look at them before you start.
+
+The task is simple. The algorithms are empty and all yours to implement. Some algorithms are also run as tests, but algorithms handles them all the same. To run the algorithms in the recommended order, execute:
+
+```bash
+algo watch
+```
+
+This will try to verify the completion of every exercise in a predetermined order. It will also rerun automatically every time you change a file in the `algorithms/` directory. If you want to only run it once, you can use:
+
+```bash
+algo verify
+```
+
+This will do the same as watch, but it'll quit after running.
+
+In case you want to go by your own order, or want to only verify a single exercise, you can run:
+
+```bash
+algo run Algo1
+```
+
+In case you get stuck, you can run the following command to get a hint for your
+exercise:
+
+``` bash
+algo hint Algo1
+```

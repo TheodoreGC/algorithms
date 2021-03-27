@@ -168,7 +168,7 @@ fn watch(algorithms: &[Algorithm], verbose: bool) -> notify::Result<()> {
     let (tx, rx) = channel();
 
     let mut watcher: RecommendedWatcher = Watcher::new(tx, Duration::from_secs(2))?;
-    watcher.watch(Path::new("./alogorithms"), RecursiveMode::Recursive)?;
+    watcher.watch(Path::new("./algorithms"), RecursiveMode::Recursive)?;
 
     clear_screen();
 
