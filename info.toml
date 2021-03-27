@@ -1,0 +1,8 @@
+# SORTS
+
+[[algorithms]]
+name = "merge_sort"
+path = "algorithms/sorts/merge_sort.rs"
+mode = "compile"
+hint = """
+Hint: This is a test."""
