@@ -6,8 +6,49 @@
  * See the following Rust implementation for details.
  */
 
-fn merge_sort<T: Copy + Ord>(x: &mut [T]) {
-  // TODO
+fn merge<T: Copy + PartialOrd>(array1: &[T], array2: &[T], vector: &mut [T]) {
+  assert_eq!(array1.len() + array2.len(), vector.len());
+  let mut i = 0;
+  let mut j = 0;
+  let mut k = 0;
+
+  while i < array1.len() && j < array2.len() {
+    if array1[i] < array2[j] {
+      vector[k] = array1[i];
+      k += 1;
+      i += 1;
+    } else {
+      vector[k] = array2[j];
+      k += 1;
+      j += 1;
+    }
+  }
+
+  if i < array1.len() {
+    vector[k..].copy_from_slice(&array1[i..]);
+  }
+
+  if j < array1.len() {
+    vector[k..].copy_from_slice(&array2[j..]);
+  }
+}
+
+fn merge_sort<T: Copy + Ord>(array: &mut [T]) {
+  let n = array.len();
+  let m = n / 2;
+
+  if n <= 1 {
+    return;
+  }
+
+  merge_sort(&mut array[0..m]);
+  merge_sort(&mut array[m..n]);
+
+  let mut vector: Vec<T> = array.to_vec();
+
+  merge(&array[0..m], &array[m..n], &mut vector[..]);
+
+  array.copy_from_slice(&vector);
 }
 
 #[cfg(test)]

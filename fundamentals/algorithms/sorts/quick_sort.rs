@@ -6,8 +6,51 @@
  * - Pick median as pivot.
  */
 
-fn quick_sort<T: Ord>(array: &mut [T]) {
-  // TODO
+fn partition<T: Ord>(array: &mut [T], low: isize, high: isize) -> isize {
+  let pivot = high as usize;
+  let mut index = low - 1;
+  let mut last_index = high;
+
+  loop {
+    index += 1;
+
+    while array[index as usize] < array[pivot] {
+      index += 1;
+    }
+
+    last_index -= 1;
+
+    while last_index >= 0 && array[last_index as usize] > array[pivot] {
+      last_index -= 1;
+    }
+
+    if index >= last_index {
+      break;
+    } else {
+      array.swap(index as usize, last_index as usize);
+    }
+  }
+
+  array.swap(index as usize, pivot as usize);
+  index
+}
+
+fn _quick_sort<T: Ord>(array: &mut [T], low: isize, high: isize) {
+  if low >= high {
+    return;
+  }
+
+  // pi => partitioning index
+  let pi = partition(array, low as isize, high as isize);
+
+  _quick_sort(array, low, pi - 1);
+  _quick_sort(array, pi + 1, high);
+}
+
+pub fn quick_sort<T: Ord>(array: &mut [T]) {
+  let len = array.len();
+
+  _quick_sort(array, 0, (len - 1) as isize);
 }
 
 #[cfg(test)]
