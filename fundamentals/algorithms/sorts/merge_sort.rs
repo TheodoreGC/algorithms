@@ -21,6 +21,7 @@ mod tests {
     assert_eq!(numbers, [-31, 0, 1, 2, 2, 4, 65, 83, 99, 782]);
   }
 
+  #[test]
   fn test_alphabetical_strings_sorting() {
     let mut strings = ["beach", "hotel", "airplane", "car", "house", "art"];
     merge_sort(&mut strings);
