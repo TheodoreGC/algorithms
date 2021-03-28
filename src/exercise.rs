@@ -9,7 +9,7 @@ use std::process::{self, Command};
 const RUSTC_COLOR_ARGS: &[&str] = &["--color", "always"];
 const I_AM_DONE_REGEX: &str = r"(?m)^\s*///?\s*I\s+AM\s+NOT\s+DONE";
 const CONTEXT: usize = 2;
-const CLIPPY_CARGO_TOML_PATH: &str = "./algorithms/clippy/Cargo.toml";
+const CLIPPY_CARGO_TOML_PATH: &str = "./rust-cs-fundamentals/clippy/Cargo.toml";
 
 // Get a temporary file name that is hopefully unique
 #[inline]
@@ -22,48 +22,48 @@ fn temp_file() -> String {
     format!("./temp_{}_{}", process::id(), thread_id)
 }
 
-// The mode of the algorithm.
+// The mode of the exercise.
 #[derive(Deserialize, Copy, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum Mode {
-    // Indicates that the algorithm should be compiled as a binary
+    // Indicates that the exercise should be compiled as a binary
     Compile,
-    // Indicates that the algorithm should be compiled as a test harness
+    // Indicates that the exercise should be compiled as a test harness
     Test,
-    // Indicates that the algorithm should be linted with clippy
+    // Indicates that the exercise should be linted with clippy
     Clippy,
 }
 
 #[derive(Deserialize)]
-pub struct AlgorithmList {
-    pub algorithms: Vec<Algorithm>,
+pub struct ExerciseList {
+    pub exercises: Vec<Exercise>,
 }
 
-// A representation of an algorithm.
+// A representation of an exercise.
 // This is deserialized from the accompanying info.toml file
 #[derive(Deserialize)]
-pub struct Algorithm {
-    // Name of the algorithm
+pub struct Exercise {
+    // Name of the exercise
     pub name: String,
-    // The path to the file containing the algorithm's source code
+    // The path to the file containing the exercise's source code
     pub path: PathBuf,
-    // The mode of the algorithm (Test, Compile, or Clippy)
+    // The mode of the exercise (Test, Compile, or Clippy)
     pub mode: Mode,
-    // The hint text associated with the algorithm
+    // The hint text associated with the exercise
     pub hint: String,
 }
 
-// An enum to track of the state of an Algorithm.
-// An Algorithm can be either Done or Pending
+// An enum to track of the state of an Exercise.
+// An Exercise can be either Done or Pending
 #[derive(PartialEq, Debug)]
 pub enum State {
-    // The state of the algorithm once it's been completed
+    // The state of the exercise once it's been completed
     Done,
-    // The state of the algorithm while it's not completed yet
+    // The state of the exercise while it's not completed yet
     Pending(Vec<ContextLine>),
 }
 
-// The context information of a pending algorithm
+// The context information of a pending exercise
 #[derive(PartialEq, Debug)]
 pub struct ContextLine {
     // The source code that is still pending completion
@@ -74,22 +74,22 @@ pub struct ContextLine {
     pub important: bool,
 }
 
-// The result of compiling an algorithm
-pub struct CompiledAlgorithm<'a> {
-    algorithm: &'a Algorithm,
+// The result of compiling an exercise
+pub struct CompiledExercise<'a> {
+    exercise: &'a Exercise,
     _handle: FileHandle,
 }
 
-impl<'a> CompiledAlgorithm<'a> {
-    // Run the compiled algorithm
-    pub fn run(&self) -> Result<AlgorithmOutput, AlgorithmOutput> {
-        self.algorithm.run()
+impl<'a> CompiledExercise<'a> {
+    // Run the compiled exercise
+    pub fn run(&self) -> Result<ExerciseOutput, ExerciseOutput> {
+        self.exercise.run()
     }
 }
 
 // A representation of an already executed binary
 #[derive(Debug)]
-pub struct AlgorithmOutput {
+pub struct ExerciseOutput {
     // The textual contents of the standard output of the binary
     pub stdout: String,
     // The textual contents of the standard error of the binary
@@ -104,8 +104,8 @@ impl Drop for FileHandle {
     }
 }
 
-impl Algorithm {
-    pub fn compile(&self) -> Result<CompiledAlgorithm, AlgorithmOutput> {
+impl Exercise {
+    pub fn compile(&self) -> Result<CompiledExercise, ExerciseOutput> {
         let cmd = match self.mode {
             Mode::Compile => Command::new("rustc")
                 .args(&[self.path.to_str().unwrap(), "-o", &temp_file()])
@@ -128,7 +128,7 @@ path = "{}.rs""#,
                 );
                 fs::write(CLIPPY_CARGO_TOML_PATH, cargo_toml)
                     .expect("Failed to write 📎 Clippy 📎 Cargo.toml file.");
-                // To support the ability to run the clipy algorithms, build
+                // To support the ability to run the clipy exercises, build
                 // an executable, in addition to running clippy. With a
                 // compilation failure, this would silently fail. But we expect
                 // clippy to reflect the same failure while compiling later.
@@ -156,20 +156,20 @@ path = "{}.rs""#,
         .expect("Failed to run 'compile' command.");
 
         if cmd.status.success() {
-            Ok(CompiledAlgorithm {
-                algorithm: &self,
+            Ok(CompiledExercise {
+                exercise: &self,
                 _handle: FileHandle,
             })
         } else {
             clean();
-            Err(AlgorithmOutput {
+            Err(ExerciseOutput {
                 stdout: String::from_utf8_lossy(&cmd.stdout).to_string(),
                 stderr: String::from_utf8_lossy(&cmd.stderr).to_string(),
             })
         }
     }
 
-    fn run(&self) -> Result<AlgorithmOutput, AlgorithmOutput> {
+    fn run(&self) -> Result<ExerciseOutput, ExerciseOutput> {
         let arg = match self.mode {
             Mode::Test => "--show-output",
             _ => "",
@@ -179,7 +179,7 @@ path = "{}.rs""#,
             .output()
             .expect("Failed to run 'run' command");
 
-        let output = AlgorithmOutput {
+        let output = ExerciseOutput {
             stdout: String::from_utf8_lossy(&cmd.stdout).to_string(),
             stderr: String::from_utf8_lossy(&cmd.stderr).to_string(),
         };
@@ -193,13 +193,13 @@ path = "{}.rs""#,
 
     pub fn state(&self) -> State {
         let mut source_file =
-            File::open(&self.path).expect("We were unable to open the algorithm file!");
+            File::open(&self.path).expect("We were unable to open the exercise file!");
 
         let source = {
             let mut s = String::new();
             source_file
                 .read_to_string(&mut s)
-                .expect("We were unable to read the algorithm file!");
+                .expect("We were unable to read the exercise file!");
             s
         };
 
@@ -234,7 +234,7 @@ path = "{}.rs""#,
     }
 }
 
-impl Display for Algorithm {
+impl Display for Exercise {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.path.to_str().unwrap())
     }
@@ -253,30 +253,30 @@ mod test {
     #[test]
     fn test_clean() {
         File::create(&temp_file()).unwrap();
-        let algorithm = Algorithm {
+        let exercise = Exercise {
             name: String::from("example"),
-            path: PathBuf::from("tests/fixture/state/pending_algorithm.rs"),
+            path: PathBuf::from("tests/fixture/state/pending_exercise.rs"),
             mode: Mode::Compile,
             hint: String::from(""),
         };
-        let compiled = algorithm.compile().unwrap();
+        let compiled = exercise.compile().unwrap();
         drop(compiled);
         assert!(!Path::new(&temp_file()).exists());
     }
 
     #[test]
     fn test_pending_state() {
-        let algorithm = Algorithm {
-            name: "pending_algorithm".into(),
-            path: PathBuf::from("tests/fixture/state/pending_algorithm.rs"),
+        let exercise = Exercise {
+            name: "pending_exercise".into(),
+            path: PathBuf::from("tests/fixture/state/pending_exercise.rs"),
             mode: Mode::Compile,
             hint: String::new(),
         };
 
-        let state = algorithm.state();
+        let state = exercise.state();
         let expected = vec![
             ContextLine {
-                line: "// fake_algorithm".to_string(),
+                line: "// fake_exercise".to_string(),
                 number: 1,
                 important: false,
             },
@@ -306,26 +306,26 @@ mod test {
     }
 
     #[test]
-    fn test_finished_algorithm() {
-        let algorithm = Algorithm {
-            name: "finished_algorithm".into(),
-            path: PathBuf::from("tests/fixture/state/finished_algorithm.rs"),
+    fn test_finished_exercise() {
+        let exercise = Exercise {
+            name: "finished_exercise".into(),
+            path: PathBuf::from("tests/fixture/state/finished_exercise.rs"),
             mode: Mode::Compile,
             hint: String::new(),
         };
 
-        assert_eq!(algorithm.state(), State::Done);
+        assert_eq!(exercise.state(), State::Done);
     }
 
     #[test]
-    fn test_algorithm_with_output() {
-        let algorithm = Algorithm {
-            name: "algorithm_with_output".into(),
+    fn test_exercise_with_output() {
+        let exercise = Exercise {
+            name: "exercise_with_output".into(),
             path: PathBuf::from("tests/fixture/success/testSuccess.rs"),
             mode: Mode::Test,
             hint: String::new(),
         };
-        let out = algorithm.compile().unwrap().run().unwrap();
+        let out = exercise.compile().unwrap().run().unwrap();
         assert!(out.stdout.contains("THIS TEST TOO SHALL PASS"));
     }
 }

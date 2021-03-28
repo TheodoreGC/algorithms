@@ -1,8 +1,61 @@
+# ALGORITHMS
+
 # SORTS
 
-[[algorithms]]
+[[exercises]]
 name = "merge_sort"
-path = "algorithms/sorts/merge_sort.rs"
-mode = "compile"
+path = "fundamentals/algorithms/sorts/merge_sort.rs"
+mode = "test"
 hint = """
-Hint: This is a test."""
+Hint: https://www.hackertouch.com/merge-sort-in-rust.html#:~:text = Mergesort uses a divide-and,merged) in a sorted order."""
+
+[[exercises]]
+name = "quick_sort"
+path = "fundamentals/algorithms/sorts/quick_sort.rs"
+mode = "test"
+hint = """
+Hint: """
+
+[[exercises]]
+name = "heap_sort"
+path = "fundamentals/algorithms/sorts/heap_sort.rs"
+mode = "test"
+hint = """
+Hint: """
+
+[[exercises]]
+name = "bucket_sort"
+path = "fundamentals/algorithms/sorts/bucket_sort.rs"
+mode = "test"
+hint = """
+Hint: """
+
+[[exercises]]
+name = "counting_sort"
+path = "fundamentals/algorithms/sorts/counting_sort.rs"
+mode = "test"
+hint = """
+Hint: """
+
+# SEARCHES
+
+[[exercises]]
+name = "binary_search"
+path = "fundamentals/algorithms/searches/binary_search.rs"
+mode = "test"
+hint = """
+Hint: """
+
+[[exercises]]
+name = "depth_first_search"
+path = "fundamentals/algorithms/searches/depth_first_search.rs"
+mode = "test"
+hint = """
+Hint: """
+
+[[exercises]]
+name = "breadth_first_search"
+path = "fundamentals/algorithms/searches/breadth_first_search.rs"
+mode = "test"
+hint = """
+Hint: """

@@ -98,13 +98,13 @@ else
     echo "SUCCESS: Rust is up to date"
 fi
 
-Path=${1:-algorithms/}
-echo "Cloning Algorithms at $Path..."
-git clone -q https://github.com/TheodoreGC/algorithms.git $Path
+Path=${1:-rust-cs-fundamentals/}
+echo "Cloning Rust CS Fundamentals at $Path..."
+git clone -q https://github.com/TheodoreGC/rust-cs-fundamentals.git $Path
 
 cd $Path
 
-Version=$(curl -s https://api.github.com/repos/TheodoreGC/algorithms/releases/latest | ${PY} -c "import json,sys;obj=json.load(sys.stdin);print(obj['tag_name']);")
+Version=$(curl -s https://api.github.com/repos/TheodoreGC/rust-cs-fundamentals/releases/latest | ${PY} -c "import json,sys;obj=json.load(sys.stdin);print(obj['tag_name']);")
 CargoBin="${CARGO_HOME:-$HOME/.cargo}/bin"
 
 if [[ -z ${Version} ]]
@@ -115,7 +115,7 @@ then
     if [[ -z ${Version}  ]]
     then
         echo "No valid tag version found"
-        echo "Algorithms will be installed using the main branch"
+        echo "Rust CS Fundamentals will be installed using the main branch"
         Version="main"
     else
         Version="tags/${Version}"

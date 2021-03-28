@@ -1,4 +1,4 @@
-use crate::algorithm::{Algorithm, AlgorithmList};
+use crate::exercise::{Exercise, ExerciseList};
 use crate::run::run;
 use crate::verify::verify;
 use clap::{crate_version, App, Arg, SubCommand};
@@ -18,7 +18,7 @@ use std::time::Duration;
 #[macro_use]
 mod ui;
 
-mod algorithm;
+mod exercise;
 mod run;
 mod verify;
 
@@ -26,7 +26,7 @@ fn main() {
     let matches = App::new("algo")
         .version(crate_version!())
         .author("Theodore Garson")
-        .about("Algorithmns is a collection of exercises to get you used to writing and reading Rust code with a series of common algorithms")
+        .about("Rust CS Fundamentals is a collection of exercises to get you used to writing and reading Rust code with a series of common exercises")
         .arg(
             Arg::with_name("nocapture")
                 .long("nocapture")
@@ -58,16 +58,16 @@ fn main() {
 
     if matches.subcommand_name().is_none() {
         println!();
-        println!(r#"       welcome to algorithm               "#);
+        println!(r#"       welcome to exercise               "#);
         println!();
     }
 
     if !Path::new("info.toml").exists() {
         println!(
-            "{} must be run from the algorithms directory",
+            "{} must be run from the rust-cs-fundamentals directory",
             std::env::current_exe().unwrap().to_str().unwrap()
         );
-        println!("Try `cd algorithms/`!");
+        println!("Try `cd rust-cs-fundamentals/`!");
         std::process::exit(1);
     }
 
@@ -79,26 +79,26 @@ fn main() {
     }
 
     let toml_str = &fs::read_to_string("info.toml").unwrap();
-    let algorithms = toml::from_str::<AlgorithmList>(toml_str).unwrap().algorithms;
+    let exercises = toml::from_str::<ExerciseList>(toml_str).unwrap().exercises;
     let verbose = matches.is_present("nocapture");
 
     if let Some(ref matches) = matches.subcommand_matches("run") {
         let name = matches.value_of("name").unwrap();
 
-        let matching_algorithm = |e: &&Algorithm| name == e.name;
+        let matching_exercise = |e: &&Exercise| name == e.name;
 
-        let algorithm = algorithms.iter().find(matching_algorithm).unwrap_or_else(|| {
+        let exercise = exercises.iter().find(matching_exercise).unwrap_or_else(|| {
             println!("No exercise found for your given name!");
             std::process::exit(1)
         });
 
-        run(&algorithm, verbose).unwrap_or_else(|_| std::process::exit(1));
+        run(&exercise, verbose).unwrap_or_else(|_| std::process::exit(1));
     }
 
     if let Some(ref matches) = matches.subcommand_matches("hint") {
         let name = matches.value_of("name").unwrap();
 
-        let algorithm = algorithms
+        let exercise = exercises
             .iter()
             .find(|e| name == e.name)
             .unwrap_or_else(|| {
@@ -106,15 +106,15 @@ fn main() {
                 std::process::exit(1)
             });
 
-        println!("{}", algorithm.hint);
+        println!("{}", exercise.hint);
     }
 
     if matches.subcommand_matches("verify").is_some() {
-        verify(&algorithms, verbose).unwrap_or_else(|_| std::process::exit(1));
+        verify(&exercises, verbose).unwrap_or_else(|_| std::process::exit(1));
     }
 
     if matches.subcommand_matches("watch").is_some() {
-        if let Err(e) = watch(&algorithms, verbose) {
+        if let Err(e) = watch(&exercises, verbose) {
             println!("Error: Could not watch your progess. Error message was {:?}.", e);
             println!("Most likely you've run out of disk space or your 'inotify limit' has been reached.");
             std::process::exit(1);
@@ -135,8 +135,8 @@ fn main() {
     }
 }
 
-fn spawn_watch_shell(failed_algorithm_hint: &Arc<Mutex<Option<String>>>) {
-    let failed_algorithm_hint = Arc::clone(failed_algorithm_hint);
+fn spawn_watch_shell(failed_exercise_hint: &Arc<Mutex<Option<String>>>) {
+    let failed_exercise_hint = Arc::clone(failed_exercise_hint);
     println!("Type 'hint' to get help or 'clear' to clear the screen");
     thread::spawn(move || loop {
         let mut input = String::new();
@@ -144,7 +144,7 @@ fn spawn_watch_shell(failed_algorithm_hint: &Arc<Mutex<Option<String>>>) {
             Ok(_) => {
                 let input = input.trim();
                 if input.eq("hint") {
-                    if let Some(hint) = &*failed_algorithm_hint.lock().unwrap() {
+                    if let Some(hint) = &*failed_exercise_hint.lock().unwrap() {
                         println!("{}", hint);
                     }
                 } else if input.eq("clear") {
@@ -158,7 +158,7 @@ fn spawn_watch_shell(failed_algorithm_hint: &Arc<Mutex<Option<String>>>) {
     });
 }
 
-fn watch(algorithms: &[Algorithm], verbose: bool) -> notify::Result<()> {
+fn watch(exercises: &[Exercise], verbose: bool) -> notify::Result<()> {
     /* Clears the terminal with an ANSI escape code.
     Works in UNIX and newer Windows terminals. */
     fn clear_screen() {
@@ -168,31 +168,31 @@ fn watch(algorithms: &[Algorithm], verbose: bool) -> notify::Result<()> {
     let (tx, rx) = channel();
 
     let mut watcher: RecommendedWatcher = Watcher::new(tx, Duration::from_secs(2))?;
-    watcher.watch(Path::new("./algorithms"), RecursiveMode::Recursive)?;
+    watcher.watch(Path::new("./fundamentals"), RecursiveMode::Recursive)?;
 
     clear_screen();
 
-    let to_owned_hint = |t: &Algorithm| t.hint.to_owned();
-    let failed_algorithm_hint = match verify(algorithms.iter(), verbose) {
+    let to_owned_hint = |t: &Exercise| t.hint.to_owned();
+    let failed_exercise_hint = match verify(exercises.iter(), verbose) {
         Ok(_) => return Ok(()),
-        Err(algorithm) => Arc::new(Mutex::new(Some(to_owned_hint(algorithm)))),
+        Err(exercise) => Arc::new(Mutex::new(Some(to_owned_hint(exercise)))),
     };
-    spawn_watch_shell(&failed_algorithm_hint);
+    spawn_watch_shell(&failed_exercise_hint);
     loop {
         match rx.recv() {
             Ok(event) => match event {
                 DebouncedEvent::Create(b) | DebouncedEvent::Chmod(b) | DebouncedEvent::Write(b) => {
                     if b.extension() == Some(OsStr::new("rs")) && b.exists() {
                         let filepath = b.as_path().canonicalize().unwrap();
-                        let pending_algorithms = algorithms
+                        let pending_exercises = exercises
                             .iter()
                             .skip_while(|e| !filepath.ends_with(&e.path));
                         clear_screen();
-                        match verify(pending_algorithms, verbose) {
+                        match verify(pending_exercises, verbose) {
                             Ok(_) => return Ok(()),
-                            Err(algorithm) => {
-                                let mut failed_algorithm_hint = failed_algorithm_hint.lock().unwrap();
-                                *failed_algorithm_hint = Some(to_owned_hint(algorithm));
+                            Err(exercise) => {
+                                let mut failed_exercise_hint = failed_exercise_hint.lock().unwrap();
+                                *failed_exercise_hint = Some(to_owned_hint(exercise));
                             }
                         }
                     }

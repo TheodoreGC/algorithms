@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 
 #Requires -Version 5
-param($path = "$pwd/algorithms")
+param($path = "$pwd/rust-cs-fundamentals")
 
 Write-Host "Let's get you set up!"
 
@@ -62,15 +62,15 @@ if ((vercomp $rustVersion $minRustVersion) -eq 2) {
     Write-Host "SUCCESS: Rust is up to date"
 }
 
-Write-Host "Cloning Algorithms at $path"
-git clone -q https://github.com/TheodoreGC/algorithms.git $path
+Write-Host "Cloning Rust CS Fundamentals at $path"
+git clone -q https://github.com/TheodoreGC/rust-cs-fundamentals.git $path
 if (!($LASTEXITCODE -eq 0)) {
     exit 1
 }
 
 # UseBasicParsing is deprecated, pwsh 6 or above will automatically use it,
 # but anyone running pwsh 5 will have to pass the argument.
-$version = Invoke-WebRequest -UseBasicParsing https://api.github.com/repos/TheodoreGC/algorithms/releases/latest `
+$version = Invoke-WebRequest -UseBasicParsing https://api.github.com/repos/TheodoreGC/rust-cs-fundamentals/releases/latest `
     | ConvertFrom-Json | Select-Object -ExpandProperty tag_name
 
 Write-Host "Checking out version $version..."

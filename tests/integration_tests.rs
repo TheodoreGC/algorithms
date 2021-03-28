@@ -101,10 +101,10 @@ fn run_single_test_no_filename() {
 }
 
 #[test]
-fn run_single_test_no_algorithm() {
+fn run_single_test_no_exercise() {
     Command::cargo_bin("algo")
         .unwrap()
-        .args(&["r", "compNoAlgorithm.rs"])
+        .args(&["r", "compNoExercise.rs"])
         .current_dir("tests/fixture/failure")
         .assert()
         .code(1);
@@ -122,9 +122,9 @@ fn get_hint_for_single_test() {
 }
 
 #[test]
-fn all_algorithms_require_confirmation() {
-    for algorithm in glob("algorithms/**/*.rs").unwrap() {
-        let path = algorithm.unwrap();
+fn all_exercises_require_confirmation() {
+    for exercise in glob("rust-cs-fundamentals/**/*.rs").unwrap() {
+        let path = exercise.unwrap();
         let source = {
             let mut file = File::open(&path).unwrap();
             let mut s = String::new();
@@ -139,10 +139,10 @@ fn all_algorithms_require_confirmation() {
 }
 
 #[test]
-fn run_compile_algorithm_does_not_prompt() {
+fn run_compile_exercise_does_not_prompt() {
     Command::cargo_bin("algo")
         .unwrap()
-        .args(&["r", "pending_algorithm"])
+        .args(&["r", "pending_exercise"])
         .current_dir("tests/fixture/state")
         .assert()
         .code(0)
@@ -150,10 +150,10 @@ fn run_compile_algorithm_does_not_prompt() {
 }
 
 #[test]
-fn run_test_algorithm_does_not_prompt() {
+fn run_test_exercise_does_not_prompt() {
     Command::cargo_bin("algo")
         .unwrap()
-        .args(&["r", "pending_test_algorithm"])
+        .args(&["r", "pending_test_exercise"])
         .current_dir("tests/fixture/state")
         .assert()
         .code(0)
