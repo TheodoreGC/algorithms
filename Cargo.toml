@@ -1,5 +1,5 @@
 [package]
-name = "algorithms"
+name = "rust-cs-fundamentals"
 version = "0.1.0"
 authors = ["Theodore GARSON <theodore.corbeaux@gmail.com>"]
 edition = "2018"
