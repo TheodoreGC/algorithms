@@ -1,13 +1,11 @@
 # CS Fundamentals in Rust
 
-<a href="https://www.buymeacoffee.com/theodoregc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-red.png" alt="Buy Me A Beer" height="41" width="174"></a>
-
 *This project is inspired by [rustlings](https://github.com/rust-lang/rustlings).*
 *I love the idea to provide a "framework" for learning Rust by doing and wanted to provide a similar experience for learning CS fundamentals in Rust. As the goal of [rustlings](https://github.com/rust-lang/rustlings) is mostly focusing on syntax and features Rust provides, I decided to create this project oriented exclusively on algorithms, CS concepts and data structures.*
 
 *I strongly recommend going trough the [rustlings](https://github.com/rust-lang/rustlings) before getting started with this project.*
 
-This project provides a playground where to implement algorithms, CS concepts and data structures in Rust. This includes reading and responding to compiler messages!
+This project provides a playground where to implement algorithms, CS concepts and data structures in Rust.
 
 ## Getting Started
 
